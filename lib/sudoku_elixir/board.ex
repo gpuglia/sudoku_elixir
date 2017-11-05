@@ -2,7 +2,8 @@ defmodule SudokuElixir.Board do
   defstruct cells: "", board_size: 9
 
   def valid?(board) do
-    valid_group?(rows(board))
+    [rows(board), columns(board), boxes(board)]
+    |> Enum.all?(&valid_group?(&1))
   end
 
   def to_list(board) do
@@ -32,7 +33,7 @@ defmodule SudokuElixir.Board do
     box_row = row_index(board, index) |> div(box_size)
     box_column = column_index(board, index) |> div(box_size)
 
-    (3 * box_row) + box_column
+    (box_size * box_row) + box_column
   end
 
   defp groups(board, group_function) do
@@ -42,12 +43,13 @@ defmodule SudokuElixir.Board do
     |> Enum.group_by(
       fn {_, index} -> group_function.(index) end,
       fn {cell, _} -> cell end)
-    |> Map.values
   end
 
-  defp valid_group?(groups) when is_list(groups) do
-    Enum.all?(groups, &valid?(Enum.sort(&1)))
+  defp valid_group?(groups) when is_map(groups) do
+    Enum.all?(groups, fn {_, group} -> valid_group?(group) end)
   end
-  defp valid_group?(1..9), do: true
-  defp valid_group?(_), do: false
+
+  defp valid_group?(group) do
+    Enum.sort(group) == Enum.to_list(1..length(group))
+  end
 end
