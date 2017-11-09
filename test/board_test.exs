@@ -34,6 +34,6 @@ defmodule BoardTest do
 
   test "move inserts a number in the corresponding index" do
     board = to_board("1406")
-    assert move(board, 2, 7) == [1, 4, 7, 6]
+    assert move(board, 2, 7) == %SudokuElixir.Board{cells: [1, 4, 7, 6]}
   end
 end

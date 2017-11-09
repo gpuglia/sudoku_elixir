@@ -13,9 +13,8 @@ defmodule SudokuElixir.Board do
     |> Enum.all?(&valid_group?(&1))
   end
 
-  def move(board, cell, value) do
-    board.cells
-    |> List.replace_at(cell, value)
+  def move(board, index, value) do
+    %SudokuElixir.Board{cells: List.replace_at(board.cells, index, value) }
   end
 
   def rows(board) do
