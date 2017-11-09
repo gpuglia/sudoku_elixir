@@ -1,15 +1,21 @@
 defmodule SudokuElixir.Board do
-  defstruct cells: "", board_size: 9
+  defstruct cells: [], board_size: 9
+
+  def to_board(string, size \\ 9) do
+    %SudokuElixir.Board{cells: to_list(string), board_size: size}
+  end
+
+  def complete?(board) do
+  end
 
   def valid?(board) do
     [rows(board), columns(board), boxes(board)]
     |> Enum.all?(&valid_group?(&1))
   end
 
-  def to_list(board) do
+  def move(board, cell, value) do
     board.cells
-    |> String.split("", trim: true)
-    |> Enum.map(&String.to_integer(&1))
+    |> List.replace_at(cell, value)
   end
 
   def rows(board) do
@@ -22,6 +28,12 @@ defmodule SudokuElixir.Board do
 
   def boxes(board) do
     groups(board, &box_index(board, &1))
+  end
+
+  defp to_list(board_string) do
+    board_string
+    |> String.split("", trim: true)
+    |> Enum.map(&String.to_integer(&1))
   end
 
   defp row_index(board, index), do: div(index, board.board_size)
@@ -37,19 +49,17 @@ defmodule SudokuElixir.Board do
   end
 
   defp groups(board, group_function) do
-    board
-    |> to_list
+    board.cells
     |> Stream.with_index
     |> Enum.group_by(
       fn {_, index} -> group_function.(index) end,
       fn {cell, _} -> cell end)
   end
 
-  defp valid_group?(groups) when is_map(groups) do
-    Enum.all?(groups, fn {_, group} -> valid_group?(group) end)
-  end
-
-  defp valid_group?(group) do
-    Enum.sort(group) == Enum.to_list(1..length(group))
+  defp valid_group?(groups) do
+    groups
+    |> Enum.all?(
+      fn {_, group} -> group == Enum.uniq(group) end
+    )
   end
 end
