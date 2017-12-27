@@ -5,7 +5,14 @@ defmodule SudokuElixir.Board do
     %SudokuElixir.Board{cells: to_list(string), board_size: size}
   end
 
+  def solved?(board) do
+    complete?(board) && valid?(board)
+  end
+
   def complete?(board) do
+    board.cells
+    |> Enum.find(fn(x) -> x == 0 end)
+    |> is_nil
   end
 
   def valid?(board) do
@@ -58,7 +65,10 @@ defmodule SudokuElixir.Board do
   defp valid_group?(groups) do
     groups
     |> Enum.all?(
-      fn {_, group} -> group == Enum.uniq(group) end
+      fn {_, group} ->
+        filtered_group = Enum.reject(group, fn x -> x == 0 end)
+        filtered_group == Enum.uniq(filtered_group)
+      end
     )
   end
 end
